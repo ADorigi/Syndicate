@@ -4,55 +4,90 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/canvas"
-	"fyne.io/fyne/v2/widget"
-	"github.com/adorigi/syndicate/fyneapp/typedefs"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
 )
 
 type App struct {
 	app    fyne.App
-	window fyne.Window
-	// images map[string]canvas.Image
+	window map[string]fyne.Window
 }
-
-// func OnCardTap(app fyne.App) {
-// 	app.NewWindow("New")
-// }
 
 func (a *App) InitializeApp() {
 	a.app = app.New()
-	a.window = a.app.NewWindow("Syndicate")
-	// a.window.SetContent(widget.NewLabel("Hello World!"))
-	a.window.Resize(fyne.NewSize(400, 400))
-	// a.window.SetContent(widget.NewEntry())
-	// a.images["cpu"] = *canvas.NewImageFromFile("/fyneApp/satic/cpu.png")
-	// card := widget.NewCard("CPU", "CPU info", a.window.Canvas().Content())
+	a.window = make(map[string]fyne.Window)
+	// a.window["Main"] = a.app.NewWindow("Syndicate")
+	// a.window["Main"].Resize(fyne.NewSize(400, 400))
+	a.AddWindow("Main", "Syndicate")
+	// a.window["Main"].Resize(fyne.NewSize(400, 400))
+	a.SetMainWindowContent()
+}
 
-	image := canvas.NewImageFromFile("./fyneApp/static/cpu.png")
-	image.Resize(fyne.NewSize(100, 100))
-	// image.FillMode = canvas.ImageFillContain
+func (a *App) AddWindow(key, title string) {
+	a.window[key] = a.app.NewWindow(title)
+}
 
-	card := typedefs.NewTapCard("CPU", "CPU info", a.window.Canvas().Content(), func() {
-		app := app.New()
-		window := app.NewWindow("New")
-		window.SetContent(widget.NewLabel("Hello World!"))
-		window.Show()
-		// fmt.Println("Card tapped")
-	})
-	card.SetImage(image)
+func (a *App) SetMainWindowContent() {
 
-	a.window.SetContent(card)
+	// diskImage := canvas.NewImageFromFile("./static/disk.png")
+	// diskImage.FillMode = canvas.ImageFillContain
 
-	// image := canvas.NewImageFromFile("/fyneApp/static/cpu.png")
-	// image := canvas.NewImageFromFile("./fyneApp/static/cpu.png")
+	// diskCard := NewTapCard("Disk", "Disk info", a.window["Main"].Canvas().Content(), func() {
+	// 	// app := a.New()
+	// 	window := a.app.NewWindow("New")
+	// 	window.SetContent(widget.NewLabel("Hello World!"))
+	// 	window.Show()
+	// })
+	// diskCard.SetImage(diskImage)
 
-	// image.FillMode = canvas.ImageFillOriginal
-	// a.window.SetContent(image)
+	content := container.New(
+		layout.NewHBoxLayout(),
+		a.newCardWindow("./static/cpu.png", "CPU", "CPU info"),
+		a.newCardWindow("./static/disk.png", "Disk", "Disk info"),
+	)
+
+	a.window["Main"].SetContent(content)
+}
+
+func (a *App) Show(window string) {
+	a.window[window].Show()
 }
 
 func (a *App) Run() {
-	a.window.ShowAndRun()
+	a.app.Run()
 }
 
 func NewAppData() *App {
 	return &App{}
+}
+
+func (a *App) newCardWindow(imagePath, title, subTitle string) fyne.Widget {
+	image := canvas.NewImageFromFile(imagePath)
+	image.FillMode = canvas.ImageFillContain
+
+	card := NewTapCard(title, subTitle, a.window["Main"].Canvas().Content(), func() {
+		a.onCardTap(title)
+	})
+	// func() {
+
+	// 	a.window[title] = a.app.NewWindow(title)
+
+	// 	// remove after you set content
+	// 	//
+	// 	// window.SetContent(widget.NewLabel("Hello World!"))
+	// 	// window.Show()
+	// })
+	card.SetImage(image)
+
+	return card
+}
+
+func (a *App) onCardTap(title string) {
+
+	// app := a.New()
+	// a.window[title] = a.app.NewWindow(title)
+	// window.SetContent(widget.NewLabel("CPU tapped"))
+	// window.Show()
+
+	a.AddWindow(title, title)
 }

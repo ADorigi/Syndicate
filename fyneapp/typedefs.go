@@ -1,4 +1,4 @@
-package typedefs
+package fyneapp
 
 import (
 	"fyne.io/fyne/v2"
@@ -16,8 +16,11 @@ func (tc *TapCard) Tapped(*fyne.PointEvent) {
 	}
 }
 
-func (tc *TapCard) TappedSecondary(*fyne.PointEvent) {}
+// func (tc *TapCard) TappedSecondary(*fyne.PointEvent) {}
 
 func NewTapCard(title string, subTitle string, content fyne.CanvasObject, tapped func()) *TapCard {
-	return &TapCard{widget.NewCard(title, subTitle, content), tapped}
+	tapCard := &TapCard{widget.NewCard(title, subTitle, content), tapped}
+	tapCard.ExtendBaseWidget(tapCard)
+
+	return tapCard
 }
