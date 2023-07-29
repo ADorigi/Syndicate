@@ -13,13 +13,15 @@ type App struct {
 	window map[string]fyne.Window
 }
 
+func NewApp() *App {
+	return &App{}
+}
+
 func (a *App) InitializeApp() {
 	a.app = app.New()
 	a.window = make(map[string]fyne.Window)
-	// a.window["Main"] = a.app.NewWindow("Syndicate")
-	// a.window["Main"].Resize(fyne.NewSize(400, 400))
+
 	a.AddWindow("Main", "Syndicate")
-	// a.window["Main"].Resize(fyne.NewSize(400, 400))
 	a.SetMainWindowContent()
 }
 
@@ -29,16 +31,16 @@ func (a *App) AddWindow(key, title string) {
 
 func (a *App) SetMainWindowContent() {
 
-	// diskImage := canvas.NewImageFromFile("./static/disk.png")
-	// diskImage.FillMode = canvas.ImageFillContain
+	content := container.NewHBox(
+		a.newCardWindow("./static/cpu.png", "CPU", "CPU info"),
+		a.newCardWindow("./static/disk.png", "Disk", "Disk info"),
+	)
 
-	// diskCard := NewTapCard("Disk", "Disk info", a.window["Main"].Canvas().Content(), func() {
-	// 	// app := a.New()
-	// 	window := a.app.NewWindow("New")
-	// 	window.SetContent(widget.NewLabel("Hello World!"))
-	// 	window.Show()
-	// })
-	// diskCard.SetImage(diskImage)
+	a.window["Main"].SetContent(content)
+	// a.window["Main"].SetContent(a.newCardWindow("./static/cpu.png", "CPU", "CPU info"))
+}
+
+func (a *App) SetCardWindowContent(window string) {
 
 	content := container.New(
 		layout.NewHBoxLayout(),
@@ -57,10 +59,6 @@ func (a *App) Run() {
 	a.app.Run()
 }
 
-func NewAppData() *App {
-	return &App{}
-}
-
 func (a *App) newCardWindow(imagePath, title, subTitle string) fyne.Widget {
 	image := canvas.NewImageFromFile(imagePath)
 	image.FillMode = canvas.ImageFillContain
@@ -68,26 +66,15 @@ func (a *App) newCardWindow(imagePath, title, subTitle string) fyne.Widget {
 	card := NewTapCard(title, subTitle, a.window["Main"].Canvas().Content(), func() {
 		a.onCardTap(title)
 	})
-	// func() {
-
-	// 	a.window[title] = a.app.NewWindow(title)
-
-	// 	// remove after you set content
-	// 	//
-	// 	// window.SetContent(widget.NewLabel("Hello World!"))
-	// 	// window.Show()
-	// })
+	image.SetMinSize(fyne.NewSize(50, 50))
 	card.SetImage(image)
+	card.Resize(fyne.NewSize(200, 200))
 
 	return card
 }
 
 func (a *App) onCardTap(title string) {
 
-	// app := a.New()
-	// a.window[title] = a.app.NewWindow(title)
-	// window.SetContent(widget.NewLabel("CPU tapped"))
-	// window.Show()
-
 	a.AddWindow(title, title)
+	a.Show(title)
 }

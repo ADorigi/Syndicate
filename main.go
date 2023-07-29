@@ -6,7 +6,7 @@ func main() {
 	// info := systemInfo.CollectStats()
 	// fmt.Println(info)
 
-	mainApp := fyneapp.NewAppData()
+	mainApp := fyneapp.NewApp()
 	mainApp.InitializeApp()
 	mainApp.Show("Main")
 	mainApp.Run()
