@@ -18,8 +18,6 @@ type App struct {
 	window   map[string]fyne.Window
 	info     systeminfo.AllInfo
 	appTheme fyne.Theme
-
-	// windowContent map[string]fyne.CanvasObject
 }
 
 func NewApp() *App {
@@ -39,8 +37,6 @@ func (a *App) InitializeApp() {
 	a.window = make(map[string]fyne.Window)
 	a.info = systeminfo.CollectStats()
 	a.appTheme = &myTheme{}
-
-	// a.windowContent = make(map[string]fyne.CanvasObject)
 
 	a.app.Settings().SetTheme(a.appTheme)
 
@@ -112,13 +108,6 @@ func (a *App) newCard(resource *fyne.StaticResource, title string) fyne.Widget {
 	// image.Resize(fyne.NewSize(50, 50))
 	image.SetMinSize(fyne.NewSize(50, 50))
 
-	// card := NewTapCard(title, subTitle, a.window["Main"].Canvas().Content(), func() {
-	// 	a.onCardTap(title)
-	// })
-	// card := NewTapCard(title, subTitle, image, func() {
-	// 	a.onCardTap(title)
-	// })
-
 	titlec := canvas.NewText(title, theme.ForegroundColor())
 	titlec.TextSize = 20
 
@@ -128,8 +117,6 @@ func (a *App) newCard(resource *fyne.StaticResource, title string) fyne.Widget {
 		container.New(layout.NewCenterLayout(), widget.NewButton(title, func() {
 			a.onCardTap(title)
 		}))))
-	// image.Resize(fyne.NewSize(50, 50))
-	// card.SetImage(image)
 
 	card.Resize(fyne.NewSize(200, 200))
 
