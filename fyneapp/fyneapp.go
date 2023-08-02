@@ -1,6 +1,8 @@
 package fyneapp
 
 import (
+	"strconv"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/canvas"
@@ -53,50 +55,59 @@ func (a *App) AddWindow(key, title string) {
 func (a *App) SetMainWindowContent() {
 	content := container.New(
 		layout.NewGridLayout(2),
-		a.newCard("./static/cpu.svg", "CPU", "CPU info"),
-		a.newCard("./static/disk.svg", "Disk", "Disk info"),
-		a.newCard("./static/network.svg", "Network", "Network info"),
+		a.newCard(resourceCpuSvg, "CPU"),
+		a.newCard(resourceDiskSvg, "Disk"),
+		a.newCard(resourceNetworkSvg, "Network"),
 	)
 
 	a.window["Main"].SetContent(content)
-	// a.window["Main"].SetContent(a.newCardWindow("./static/cpu.png", "CPU", "CPU info"))
+	a.window["Main"].CenterOnScreen()
 }
 
 func (a *App) SetCardWindowContent(window string) {
 
-	cpuData := [][]string{
-		{"CPU", a.info.CpuName},
+	var tableData [][]string
+	switch window {
+	case "CPU":
+		tableData = [][]string{
+			{"CPU", a.info.CpuName},
+		}
+	case "Disk":
+		tableData = [][]string{
+			{"Disk \nAvailable", strconv.FormatUint(a.info.DiskAvailable, 10) + " GB"},
+			{"Disk Used", strconv.FormatUint(a.info.DiskUsed, 10) + " GB"},
+			{"%% Used", strconv.FormatUint(a.info.DiskUsed, 10) + " GB"},
+		}
+	case "Network":
+		tableData = [][]string{
+			{"Host Name", a.info.Hostname},
+			{"Local IPv4", a.info.LocalIPv4},
+			{"Global IP", a.info.GlobalIP},
+		}
 	}
 
-	cpuTable := widget.NewTable(
+	displayTable := widget.NewTable(
 		func() (int, int) {
-			return len(cpuData), len(cpuData[0])
+			return len(tableData), len(tableData[0])
 		},
 		func() fyne.CanvasObject {
-			return widget.NewLabel("content")
+			return widget.NewLabel("..............................\n")
 		},
 		func(i widget.TableCellID, o fyne.CanvasObject) {
-			o.(*widget.Label).SetText(cpuData[i.Row][i.Col])
-			// if i.Col == 0 {
-			// 	o.(*widget.Label).SetText(cpuData[i.Row][i.Col])
-			// }
+
+			o.(*widget.Label).SetText(tableData[i.Row][i.Col])
 
 		})
-
-	// diskUsed := widget.NewProgressBar()
-	// a.window[window].Resize(fyne.NewSize(100, 100))
-
-	cpuTable.Resize(fyne.NewSize(100, 100))
-
-	// content := container.NewHBox(cpuTable)
-	// content.Resize(fyne.NewSize(500, 500))
-	a.window[window].SetContent(cpuTable)
-
-	// a.window[window].SetContent(content)
+	displayTable.SetColumnWidth(1, 200)
+	// displayTable.Resize(fyne.NewSize(300, 300))
+	cntnr := container.New(layout.NewMaxLayout(), displayTable)
+	// cntnr.Resize(fyne.NewSize(200, 200))
+	a.window[window].SetContent(cntnr)
 }
 
-func (a *App) newCard(imagePath, title, subTitle string) fyne.Widget {
-	image := canvas.NewImageFromFile(imagePath)
+func (a *App) newCard(resource *fyne.StaticResource, title string) fyne.Widget {
+	// image := canvas.NewImageFromFile(imagePath)
+	image := canvas.NewImageFromResource(resource)
 	image.FillMode = canvas.ImageFillContain
 	// image.Resize(fyne.NewSize(50, 50))
 	image.SetMinSize(fyne.NewSize(50, 50))
@@ -129,6 +140,6 @@ func (a *App) onCardTap(title string) {
 
 	a.AddWindow(title, title)
 	a.SetCardWindowContent(title)
-	a.window[title].Resize(fyne.NewSize(200, 100))
+	a.window[title].Resize(fyne.NewSize(350, 200))
 	a.window[title].Show()
 }
