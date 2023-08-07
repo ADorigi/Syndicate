@@ -13,16 +13,16 @@ import (
 )
 
 type AllInfo struct {
-	CpuName           string  `json:"cpuname"`
-	CpuArch           string  `json:"cpuarch"`
-	OperatingSystem   string  `json:"operatingsystem"`
-	StorageUnit       string  `json:"storageunit"`
-	DiskAvailable     uint64  `json:"diskavailable"`
-	DiskUsed          uint64  `json:"DiskUsed"`
-	DiskAvailablePerc float64 `json:"DiskAvailablePerc"`
-	Hostname          string  `json:"Hostname"`
-	LocalIPv4         string  `json:"LocalIPv4"`
-	GlobalIP          string  `json:"GlobalIP"`
+	CpuName         string  `json:"cpuname"`
+	CpuArch         string  `json:"cpuarch"`
+	OperatingSystem string  `json:"operatingsystem"`
+	StorageUnit     string  `json:"storageunit"`
+	DiskAvailable   uint64  `json:"diskavailable"`
+	DiskUsed        uint64  `json:"DiskUsed"`
+	DiskUsedPercent float64 `json:"DiskUsedPercent"`
+	Hostname        string  `json:"Hostname"`
+	LocalIPv4       string  `json:"LocalIPv4"`
+	GlobalIP        string  `json:"GlobalIP"`
 }
 
 func NewAllInfo() AllInfo {
@@ -47,7 +47,7 @@ func (a *AllInfo) Initialize(cpuInfo cpu.InfoStat, dUsageInfo disk.UsageStat, ho
 	a.OperatingSystem = runtime.GOOS
 	a.DiskAvailable = (uint64)(dUsageInfo.Free / 1000000000)
 	a.DiskUsed = (uint64)(dUsageInfo.Used / 1000000000)
-	a.DiskAvailablePerc = dUsageInfo.UsedPercent
+	a.DiskUsedPercent = dUsageInfo.UsedPercent
 	a.Hostname = hostInfo.Hostname
 	a.LocalIPv4 = GetLocalIPv4()
 	a.GlobalIP = GetGlobalIP()
