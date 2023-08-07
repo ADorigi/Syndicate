@@ -1,8 +1,3 @@
 # Syndicate
-CLI interface to see system information
-
-
- - Create CLI interface
- - Create gui if possible
- - create backend properly replying in json
+## A closs-platform app that gives you info about your system. Doesn't do much but hey, its free.
 

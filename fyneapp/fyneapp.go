@@ -1,6 +1,7 @@
 package fyneapp
 
 import (
+	"net/url"
 	"strconv"
 
 	"fyne.io/fyne/v2"
@@ -18,6 +19,7 @@ type App struct {
 	window   map[string]fyne.Window
 	info     systeminfo.AllInfo
 	appTheme fyne.Theme
+	mainMenu fyne.MainMenu
 }
 
 func NewApp() *App {
@@ -42,6 +44,8 @@ func (a *App) InitializeApp() {
 
 	a.AddWindow("Main", "Syndicate")
 	a.SetMainWindowContent()
+
+	a.InitializeMenu()
 }
 
 func (a *App) AddWindow(key, title string) {
@@ -51,7 +55,7 @@ func (a *App) AddWindow(key, title string) {
 func (a *App) SetMainWindowContent() {
 	content := container.New(
 		layout.NewGridLayout(2),
-		a.newCard(resourceCpuSvg, "CPU"),
+		a.newCard(resourceCpuSvg, "SYS"),
 		a.newCard(resourceDiskSvg, "Disk"),
 		a.newCard(resourceNetworkSvg, "Network"),
 	)
@@ -64,21 +68,24 @@ func (a *App) SetCardWindowContent(window string) {
 
 	var tableData [][]string
 	switch window {
-	case "CPU":
+	case "SYS":
 		tableData = [][]string{
-			{"CPU", a.info.CpuName},
+			{"CPU name", a.info.CpuName},
+			{"Cpu Architecture", a.info.CpuArch},
+			{"Operating System", a.info.OperatingSystem},
 		}
 	case "Disk":
 		tableData = [][]string{
 			{"Disk \nAvailable", strconv.FormatUint(a.info.DiskAvailable, 10) + " GB"},
-			{"Disk Used", strconv.FormatUint(a.info.DiskUsed, 10) + " GB"},
-			{"%% Used", strconv.FormatUint(a.info.DiskUsed, 10) + " GB"},
+			{"Disk Used", strconv.FormatUint(a.info.DiskUsed, 10) + " " + a.info.StorageUnit},
+			{"% Used", strconv.FormatFloat(a.info.DiskUsedPercent, 'f', 2, 64) + " %"},
 		}
 	case "Network":
 		tableData = [][]string{
 			{"Host Name", a.info.Hostname},
 			{"Local IPv4", a.info.LocalIPv4},
 			{"Global IP", a.info.GlobalIP},
+			{"Ports", "portButton"},
 		}
 	}
 
@@ -90,15 +97,74 @@ func (a *App) SetCardWindowContent(window string) {
 			return widget.NewLabel("..............................\n")
 		},
 		func(i widget.TableCellID, o fyne.CanvasObject) {
-
 			o.(*widget.Label).SetText(tableData[i.Row][i.Col])
-
 		})
 	displayTable.SetColumnWidth(1, 200)
 	// displayTable.Resize(fyne.NewSize(300, 300))
 	cntnr := container.New(layout.NewMaxLayout(), displayTable)
 	// cntnr.Resize(fyne.NewSize(200, 200))
 	a.window[window].SetContent(cntnr)
+}
+
+func (a *App) InitializeMenu() {
+	fileMenu := fyne.NewMenu("File",
+		fyne.NewMenuItem("Quit", func() { a.app.Quit() }),
+	)
+
+	helpMenu := fyne.NewMenu("Help",
+		fyne.NewMenuItem("About", func() {
+			// dialog.ShowCustom("About", "Close", container.NewVBox(
+			// 	// container.NewVBox(
+			// 	canvas.NewImageFromResource(resourceMascotPng),
+			// 	// 	layout.NewSpacer(),
+			// 	// ),
+			// 	widget.NewLabel("Welcome to Syndicate - Reveal Your System"),
+			// 	widget.NewLabel("Author: Adnan Gulegulzar"),
+			// ), a.window["Main"])
+			a.AddWindow("about", "Hello")
+
+			image := canvas.NewImageFromResource(resourceMascotPng)
+			image.FillMode = canvas.ImageFillContain
+			image.SetMinSize(fyne.NewSize(200, 200))
+
+			aboutContainer := container.New(
+				layout.NewGridLayout(2),
+				image,
+				container.New(
+					layout.NewCenterLayout(),
+					container.New(
+						layout.NewVBoxLayout(),
+						widget.NewLabel("Welcome to Syndicate - Cross Platform App To \"Reveal Your System\""),
+						widget.NewLabel("Author: Adnan Gulegulzar"),
+						container.New(
+							layout.NewGridLayout(1),
+							widget.NewButtonWithIcon(
+								"",
+								resourceGithubPng,
+								func() {
+									a.app.OpenURL(&url.URL{
+										Scheme: "https",
+										Host:   "github.com",
+										Path:   "adorigi",
+									})
+								},
+							),
+						),
+					),
+				),
+			)
+
+			a.window["about"].SetContent(aboutContainer)
+			// a.window["about"].Resize(fyne.NewSize(350, 200))
+			a.window["about"].Show()
+		}))
+
+	mainMenu := fyne.NewMainMenu(
+		fileMenu,
+		helpMenu,
+	)
+	a.window["Main"].SetMainMenu(mainMenu)
+
 }
 
 func (a *App) newCard(resource *fyne.StaticResource, title string) fyne.Widget {
@@ -110,13 +176,30 @@ func (a *App) newCard(resource *fyne.StaticResource, title string) fyne.Widget {
 
 	titlec := canvas.NewText(title, theme.ForegroundColor())
 	titlec.TextSize = 20
-
-	card := widget.NewCard("", "", container.New(
-		layout.NewVBoxLayout(),
-		image,
-		container.New(layout.NewCenterLayout(), widget.NewButton(title, func() {
+	btn := widget.NewButton(
+		title,
+		func() {
 			a.onCardTap(title)
-		}))))
+		},
+	)
+
+	card := widget.NewCard(
+		"", "",
+		container.New(
+			layout.NewGridLayout(1),
+			image,
+			container.New(
+				layout.NewGridLayout(1),
+				layout.NewSpacer(),
+				container.New(
+					layout.NewGridLayout(3),
+					layout.NewSpacer(),
+					btn,
+					layout.NewSpacer(),
+				),
+			),
+		),
+	)
 
 	card.Resize(fyne.NewSize(200, 200))
 
