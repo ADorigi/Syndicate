@@ -1,3 +1,4 @@
+# Blog --> [Syndicate](https://rudiment.gule-gulzar.com/posts/syndicate/)
 ![Syndicate](static/syndicate.png)
 ## A closs-platform app that gives you information about your machine. Doesn't do much but hey, its free.
 
